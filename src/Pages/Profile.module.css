@@ -1,0 +1,180 @@
+.container{
+    background-color: #fff;
+    /* padding: 0 45rem 0 45rem; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sub_container{
+    background-color: black;
+    max-height: 100dvh;
+    min-height: 100dvh;
+    width: 30%;
+    position: relative;
+    color: white;
+}
+
+.top{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2rem;
+
+}
+
+
+.profile_icon{
+    width: 25%;
+    text-align: center;
+}
+
+.setting_icon{
+    width: 25%;
+    text-align: center;
+}
+
+.name{
+    width: 50%;
+    text-align: center;
+}
+
+.name p{
+    font-size: 1.5rem
+}
+
+.img_section{
+    /* position: relative; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 3rem;
+    
+}
+
+.img{
+    position: relative;
+}
+
+.edit_icon{
+    background-color: #ef3f59;
+    border-radius: 3px;
+    width: 1.5rem;
+    position: absolute;
+    bottom: 10%;
+    right: 8%;
+}
+
+
+.image{
+    border-radius: 50%;
+    height: 10rem;
+    width: 10rem;
+}
+
+.data{
+    /* color: white; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.data .text{
+    font-size: 1.5rem;
+}
+
+.data .text_2{
+    font-size: 1rem;
+}
+
+.edit_profile{
+    padding: 2rem;
+}
+
+
+.followers_section{
+    display: flex;
+    padding: 2rem;
+
+}
+
+.section{
+    width: 25%;
+    text-align: center;
+    border-right: 0.5px solid #fff;
+}
+
+.topProfile{
+    background-color: black;
+    z-index: 99;
+    display: flex;
+    position: sticky;
+    top: 0;
+    left: 0;
+    color: white;
+    border-bottom: 2px solid #ef3f59;
+    gap: 1rem;
+    padding: 10px;
+    box-shadow: #ef3f59 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    width: 100%;
+}
+
+.topProfile p{
+    font-size: 2.5rem;
+    color: white;
+   text-align: center;
+}
+
+.back_icon:hover{
+    cursor: pointer;
+    scale: 1.2;
+    color: #ef3f59;
+}
+
+
+
+
+.btn{
+    width: 100%;
+    background-color: black;
+    border: 2px solid #ef3f59;
+    height: 4rem;
+    border-radius: 20px;
+    color: #ef3f59;
+    font-size: 1.5rem;
+    /* padding: 1rem; */
+}
+
+
+.icon{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    position: absolute;
+    left: 30%;
+    top: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #413a3a6e;
+    cursor: pointer;
+
+}
+
+.icon:hover{
+    color: #ef3f59;
+}
+
+
+
+@media screen and (max-width:1000px){
+    .sub_container{
+        width: 50%;
+    }
+}
+
+@media screen and (max-width:600px){
+    .sub_container{
+        width:100%;
+    }
+}

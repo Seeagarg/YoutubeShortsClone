@@ -1,0 +1,45 @@
+.bottom_navbar_container{
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: black;
+    height: 6rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 99;
+    border-top: 2px solid #ef3f59;
+    box-shadow: #ef3f59 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+.bottom_navbar_sub_container{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    height: 5rem;
+    padding: 2rem;
+    bottom: 0;
+}
+.item_container{
+    width: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+.icon{
+    color: white;
+    font-size: 2.5rem !important;
+}
+.text{
+    font-size: 1.4rem;
+    font-family: 'Poppins',sans-serif;
+    color: white;
+}
+
+.active{
+    color: #FF7388;
+}

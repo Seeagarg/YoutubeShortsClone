@@ -1,0 +1,135 @@
+.container{
+    background-color: #fff;
+    /* padding: 0 45rem 0 45rem; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sub_container{
+    background-color: black;
+    max-height: 100dvh;
+    min-height: 100dvh;
+    width: 30%;
+    position: relative;
+}
+
+
+.bg_vid{
+    width: 100% !important;
+    margin-top: 5rem;
+    height: calc(100dvh - 5rem) !important;
+    object-fit: cover !important;
+    overflow: hidden !important;
+   
+}
+
+.info_container{
+    position: absolute;
+    right: 0;
+    bottom: 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 1rem 1rem 1rem;
+}
+.info_sub_container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+.item_container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+.icon{
+    font-size: 2.5rem !important;
+    color: white;
+}
+.text{
+    font-size: 1.2rem;
+    color: white;
+}
+.unmute_button{
+    position: absolute;
+    top: 20%;
+    right: 1rem;
+    transform: translate(0,-20%);
+    z-index: 99;
+    width: 15rem;
+    background-color: rgba(255, 255, 255, 0.764);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.5rem;
+    font-family: 'Poppins',sans-serif;
+    padding: 1rem;
+    border-radius: 0.2rem;
+}
+
+.mute_icon{
+    color: black !important;
+    font-size: 2rem !important;
+}
+
+.unmute_button.inactive{
+    display: none;
+    visibility: hidden;
+}
+
+.top{
+    background-color: black;
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+    border-bottom: 2px solid #ef3f59;
+    gap: 1rem;
+    padding: 10px;
+    box-shadow: #ef3f59 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    width: 100%;
+    z-index: 99;
+}
+
+.back_icon:hover{
+    cursor: pointer;
+    scale: 1.2;
+    color: #ef3f59;
+}
+
+.top p{
+    font-size: 2.5rem;
+    color: white;
+}
+
+video{
+    height: calc(100vh - 5rem) !important;
+    object-fit: fill !important;
+  }
+
+/* .carousel_container{
+    margin-top: 5rem;
+} */
+
+
+@media screen and (max-width:1000px){
+    .sub_container{
+        width: 50%;
+    }
+}
+
+@media screen and (max-width:600px){
+    .sub_container{
+        width:100%;
+    }
+}

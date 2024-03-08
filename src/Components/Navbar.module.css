@@ -1,0 +1,44 @@
+.navbar_container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 5rem;
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 99;
+}
+.navbar_sub_container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20%;
+    padding-top: 1rem;
+}
+.item_container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+}
+.text{
+    color: white;
+    font-size: 1.6rem;
+    font-family: 'Poppins',sans-serif;
+    font-weight: 800;
+}
+.underline{
+    height: 0.07rem;
+    width: 6rem;
+    background-color: white;
+}
+
+.active{
+    color: #FF7388;
+}
+.bg_active{
+    background-color: #FF7388;
+}

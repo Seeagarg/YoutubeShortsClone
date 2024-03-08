@@ -1,0 +1,104 @@
+*,*::before,*::after{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  align-items: center;
+  scrollbar-width: 2px !important;
+  scrollbar-color: #ef3f49 !important;
+}
+
+html{
+  scroll-behavior: smooth;
+  font-size: 62.5%;
+}
+
+.swiper-container {
+  /* position: relative; */
+  position: absolute;
+  top: 0;
+  /* height: 50rem; */
+  height: 100dvh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  top: 0;
+}
+
+.swiper-pagination-bullet{
+  display: block !important;
+  visibility: visible !important;
+}
+
+video{
+  height: calc(100vh - 5rem) !important;
+  object-fit: fill !important;
+}
+
+.react-player__play-icon{
+  height: 10px;
+}
+
+
+
+.css-9emuhu-MuiPaper-root-MuiDrawer-paper {
+  justify-self: center;
+  width: 29.5%;
+  /* margin-left: -20px; */
+  border-radius: 10px 10px 0px 0px;
+}
+
+.css-10hburv-MuiTypography-root{
+  font-size: 1.5rem !important;
+}
+
+
+@media screen and (max-width:1000px){
+  .css-9emuhu-MuiPaper-root-MuiDrawer-paper {
+      width: 50%;
+  }
+}
+
+@media screen and (max-width:600px){
+  .css-9emuhu-MuiPaper-root-MuiDrawer-paper {
+      width:100%;
+      /* margin-right: 0; */
+  }
+}
+
+
+
+
+
+
+/* 
+
+.MuiPaper-root .MuiPaper-elevation .MuiPaper-elevation16 .MuiDrawer-paper .MuiDrawer-paperAnchorBottom .css-9emuhu-MuiPaper-root-MuiDrawer-paper{
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media screen and (max-width:1000px){
+  .MuiPaper-root .MuiPaper-elevation .MuiPaper-elevation16 .MuiDrawer-paper .MuiDrawer-paperAnchorBottom .css-9emuhu-MuiPaper-root-MuiDrawer-paper{
+      width: 48%;
+  }
+}
+
+@media screen and (max-width:600px){
+  .MuiPaper-root .MuiPaper-elevation .MuiPaper-elevation16 .MuiDrawer-paper .MuiDrawer-paperAnchorBottom .css-9emuhu-MuiPaper-root-MuiDrawer-paper{
+      width:95%;
+  }
+} */
