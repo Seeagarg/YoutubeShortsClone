@@ -23,6 +23,9 @@ import { Navigate, useNavigate } from "react-router-dom";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getCookie } from "../Cookies/Cookie";
 import Animation from "../Components/Animation";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_LIKED_VIDEOS, GET_VIDEOS } from "../Services.js/Queries";
+import { POST_COMMENT, TOGGLE_LIKE } from "../Services.js/Mutations";
 
 
 SwiperCore.use([Mousewheel]);
@@ -32,10 +35,11 @@ const Home = () => {
   const msisdn = getCookie()?
   JSON.parse(getCookie()).msisdn:"";
 
-  const navigate = useNavigate()
+  const token = getCookie()?
+  JSON.parse(getCookie()).token:"";
 
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState([]);
+  const navigate = useNavigate()
+    const [vdata, setVData] = useState([]);
     const [index, setIndex] = useState(0);
     const [startIdx,setStartIdx] = useState(0);
     const [endIdx,setEndIdx] = useState(10);
@@ -44,52 +48,73 @@ const Home = () => {
     const [videoid,setVideoid] = useState("")
     const [like,setLike] = useState(3);
     const [share,setShare] = useState(false)
+    const [likedState,setLikedState] = useState([]);
 
     const [likedVideos,setLikedVideos] = useState();
+    const {data:liked_videos,loading:liked_loading,error:liked_videos_error} = useQuery(GET_LIKED_VIDEOS,{
+      variables:{
+        msisdn:Number(msisdn)
+      },
+      context:{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    })
+    const [toggleLike,{data:video_like,loading:loading_like,error:error_like}] = useMutation(TOGGLE_LIKE)
+    const {loading,error,data,refetch} = useQuery(GET_VIDEOS,{
+      context:{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    })
 
 
     // const [unlike,setUnlike] = useState(0);
     // const [commentCount,setCommentCount] = useState("")
     // const [showComment,setshowComment] = useState(false)
-
   
-    async function fetchData(){
-      const fetchedData = await fetchDataFromBackend();
-    console.log(fetchedData,"fd")
-    setData(fetchedData);
-    setLoading(false);
-    }
+    useEffect(()=>{
+      if(data){
+        setVData(data?.getVideos.result)
+      }
 
-    useEffect(() => {
-      fetchData();
-    }, []);
+      if(liked_videos){
+        setLikedState(liked_videos?.userLikedVideos.result)
+      }
+      
+     
+    },[data,liked_videos])
+
+ 
+
+    let videosWithLiked = vdata?.map(video => {
+      if(!video.hasOwnProperty('liked')){
+        return (
+          { ...video, liked: false } 
+      )
+      }
+      return video
+     
+       // Create a new object with 'liked' property added
+  });
+
 
     useEffect(()=>{
-      if(index == 9){
-        fetchData()
-      }
-    })
-
-
-    useEffect(()=>{
-
-      for(let i=0;i<data?.length;i++){
-        // console.log(data[i])
-        data[i].liked = false;
-      }
-    },[data])
+     
+    },[vdata])
   
-    // console.log(data,"data---------------------------")
+    // console.log(vdata,"data---------------------------")
     const swiperRef = useRef(null);
     const [mute, setMute] = useState(false);
   
     const handleSlideChange = (activeIndex) => {
       console.log(activeIndex,"ac")
-      if (activeIndex > 8) {
+      if (activeIndex > 9) {
         setTimeout(()=>{
-          
+          refetch()
           setIndex(0);
-          
           setStartIdx(0);
           setEndIdx(10);
           setMute(false);
@@ -141,51 +166,61 @@ const Home = () => {
 
 
     const handleOnVideoClick=(idx)=>{
-      // console.log("onVideoClicked",isPlaying)
       setIsPlaying(prevState => prevState && index === idx ? false : true);
     }
 
-    useEffect(()=>{
-      console.log(videoid,"id-----")
-      const fetchData =async()=>{
-        const response = await LikedVideoApi(msisdn);
-        setLikedVideos(response)
-        console.log(response,'r')
-      }
-      fetchData();
-
-    },[])
-
-
-  
-
-
-
     const handleDoubleClick=async(id)=>{
-      setVideoid(id);
-      const response = await likeApi(id,msisdn)
-      const video = data.find((item)=>item.id == id)
-      const likeCount = video?.likes; 
 
-      if(response == 1){
-         setLike(response);
-        setTimeout(()=>{
-          setLike(3)
-        },2000)
-     
-        video.liked = true;
-      video.likes = likeCount+1;
+      setVideoid(id);
+      console.log(id);
+      toggleLike({
+        variables:{
+          videoId:id,
+          msisdn:msisdn
+        },
+        context:{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+      })
+     }
+
+
+     useEffect(()=>{
+      if(video_like){
+        console.log(video_like?.toggleLike.status)
+        const video = videosWithLiked.find((item)=>item.id == videoid)
+        console.log(video)
+        const likeCount = video?.likes; 
+        if(video_like?.toggleLike.status == 1){
+           setLike(video_like.toggleLike.status );
+           video.liked = true;
+           console.log(video.likes,'count')
+         video.likes = likeCount+1;
+         console.log(video.likes,'count')
+          setTimeout(()=>{
+            setLike(3)
+          },2000)
+        }
+        else{
+          setLike(video_like?.toggleLike.status );
+          setTimeout(()=>{
+            setLike(3)
+          },2000)
+        
+          video.liked = false;
+          if(likeCount !== 0){
+            video.likes = likeCount-1;
+          }
+          
+        }
+        setVData(videosWithLiked)
       }
-      else{
-        setLike(response);
-        setTimeout(()=>{
-          setLike(3)
-        },2000)
-      
-        video.liked = false;
-        video.likes = likeCount-1;
-      }
-    }
+     },[video_like])
+
+
+    // console.log(video_like)
 
     const handleCommentClick=(videoId,count)=>{
       setVideoid(videoId)
@@ -198,18 +233,27 @@ const Home = () => {
     }
 
     useEffect(()=>{
-      console.log(index,data[index]?.id);
-      const arr = likedVideos?.find((item)=>item.id == data[index]?.id)
-      console.log(arr,"arr");
-    },[data,likedVideos])
+     
+      console.log(likedState,'liked')
+      if(likedState){
+        console.log(likedState,'liked')
+      const arr = likedState?.find((item)=>item.id == vdata[index]?.id )
+      console.log(videosWithLiked)
+      if(arr){
+        videosWithLiked[index].liked = true;
+        setVData(videosWithLiked)
+      }
+      }
+    },[likedState,index])
 
 
     const increaseCommentCount=()=>{
-      const video = data.find((item)=>item.id == videoid)
-      // console.log(video,"filter")
+      const video = videosWithLiked.find((item)=>item.id == videoid)
+      
       const commentCount = video.comments; 
-      // console.log(commentCount);
+      
       video.comments = commentCount+1;
+      setVData(videosWithLiked)
     }
   
 
@@ -221,17 +265,17 @@ const Home = () => {
  
       <div className={classes.sub_container}>
   
-      <Navbar/>
+      {/* <Navbar/> */}
    
       <div className={classes.carousel_container}>
         <div className="swiper-container" ref={swiperRef}>
           <div className="swiper-wrapper">
             {
               !loading?
-              data?.length > 0 
+              vdata?.length > 0 
               &&(
                 <>
-              {data.slice(startIdx,endIdx).map((dataItem, videoIndex) => {
+              {vdata.slice(startIdx,endIdx).map((dataItem, videoIndex) => {
                 {/* console.log(videoIndex,index,"AV") */}
                 {/* {()=>{setVideoid(dataItem.id)}} */}
                 return (
@@ -271,7 +315,8 @@ const Home = () => {
                     <div className={classes.info_container}>
                       <div className={classes.info_sub_container}>
                         <div className={classes.item_container}>
-                        {!dataItem.liked?
+                        {
+                          !dataItem.liked?
                           <FavoriteBorderIcon  className={classes.icon} style={{cursor:"pointer"}} onClick={()=>{handleDoubleClick(dataItem?.id)}}/>:
                           <FavoriteIcon  className={classes.icon} style={{color:"#ef3f59",cursor:"pointer"}} onClick={()=>{handleDoubleClick(dataItem?.id)}}/>
                         }
@@ -284,7 +329,6 @@ const Home = () => {
                       
                         <div className={classes.item_container}>
                           <ShareIcon className={classes.icon} onClick={()=>{handleShareClick(dataItem?.id)}} style={{cursor:"pointer"}} />
-
                         </div>
                       </div>
                     </div>
@@ -299,7 +343,8 @@ const Home = () => {
                 );
               })
               }
-              {/* <div className="swiper-slide">
+
+              <div className="swiper-slide">
                   <Skeleton
                     sx={{
                       bgcolor: "grey.800",
@@ -308,7 +353,7 @@ const Home = () => {
                     }}
                     variant="rectangular"
                   />
-                </div> */}
+                </div>
               </>
               )
               :

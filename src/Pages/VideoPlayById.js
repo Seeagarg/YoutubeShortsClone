@@ -27,17 +27,23 @@ import { Link } from "react-router-dom";
 import Animation from "../Components/Animation";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getCookie } from "../Cookies/Cookie";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_LIKED_VIDEOS, GET_VIDEO_BY_ID } from "../Services.js/Queries";
+import { TOGGLE_LIKE } from "../Services.js/Mutations";
 
 SwiperCore.use([Mousewheel]);
 
 const VideoPlayById = () => {
 
-  const msisdn = JSON.parse(getCookie()).msisdn;
+  const token = getCookie()?
+  JSON.parse(getCookie()).token:"";
+
+  const msisdn = getCookie()?JSON.parse(getCookie()).msisdn:"";
 
   const {id} = useParams();
 
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState([]);
+    // const [loading, setLoading] = useState(true);
+    const [vdata, setVData] = useState([]);
     const [index, setIndex] = useState(0);
     const [startIdx,setStartIdx] = useState(0);
     const [endIdx,setEndIdx] = useState(10);
@@ -46,18 +52,72 @@ const VideoPlayById = () => {
     const [videoid,setVideoid] = useState("")
     const [like,setLike] = useState(3);
     const [share,setShare] = useState(false)
+    const [likedState,setLikedState] = useState([]);
+
+    const {data:liked_videos,loading:liked_loading,error:liked_videos_error} = useQuery(GET_LIKED_VIDEOS,{
+      variables:{
+        msisdn:Number(msisdn)
+      },
+      context:{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    })
+
+    const [toggleLike,{data:video_like,loading:loading_like,error:error_like}] = useMutation(TOGGLE_LIKE)
+
+    const {data,loading,error} = useQuery(GET_VIDEO_BY_ID,{
+      variables:{
+        id:Number(id)
+      },
+      context:{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    })
+
+
+    let videosWithLiked = vdata?.map(video => {
+      if(!video.hasOwnProperty('liked')){
+        return (
+          { ...video, liked: false } 
+      )
+      }
+      return video
+     
+       // Create a new object with 'liked' property added
+  });
+
 
     useEffect(() => {
-      async function fetchData(){
-        // console.log(id,'videoId')
-        const fetchedData = await fetchVideoById(id);
-      // console.log(fetchedData)
-      setData(fetchedData);
-      
-      setLoading(false);
+     
+      if(data){
+        setVData(data.getVideoById.result);
+     console.log(data)
       }
-      fetchData();
-    }, []);
+      if(liked_videos){
+        setLikedState(liked_videos?.userLikedVideos.result)
+      }
+
+
+    }, [data,liked_videos]);
+
+
+    useEffect(()=>{
+     
+      console.log(likedState,'liked')
+      if(likedState){
+        console.log(likedState,'liked')
+      const arr = likedState?.find((item)=>item.id == vdata[index]?.id )
+      console.log(videosWithLiked)
+      if(arr){
+        videosWithLiked[index].liked = true;
+        setVData(videosWithLiked)
+      }
+      }
+    },[likedState,index])
   
     // console.log(data)
     const swiperRef = useRef(null);
@@ -78,13 +138,6 @@ const VideoPlayById = () => {
     };
 
 
-    useEffect(()=>{
-
-      for(let i=0;i<data?.length;i++){
-        // console.log(data[i])
-        data[i].liked = false;
-      }
-    },[data])
 
 
     useEffect(() => {
@@ -130,36 +183,75 @@ const VideoPlayById = () => {
 
     
     const handleDoubleClick=async(id)=>{
-      setVideoid(id);
-      const response = await likeApi(id,msisdn)
-      const video = data.find((item)=>item.id == id)
-      const likeCount = video?.likes; 
 
-      if(response == 1){
-         setLike(response);
-        setTimeout(()=>{
-          setLike(3)
-        },2000)
-     
-        video.liked = true;
-      video.likes = likeCount+1;
+      setVideoid(id);
+      console.log(id);
+      toggleLike({
+        variables:{
+          videoId:id,
+          msisdn:msisdn
+        },
+        context:{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+      })
+     }
+
+
+     useEffect(()=>{
+      if(video_like){
+        console.log(video_like?.toggleLike.status)
+        const video = videosWithLiked.find((item)=>item.id == videoid)
+        console.log(video)
+        const likeCount = video?.likes; 
+        if(video_like?.toggleLike.status == 1){
+           setLike(video_like.toggleLike.status );
+           video.liked = true;
+           console.log(video.likes,'count')
+         video.likes = likeCount+1;
+         console.log(video.likes,'count')
+          setTimeout(()=>{
+            setLike(3)
+          },2000)
+        }
+        else{
+          setLike(video_like?.toggleLike.status );
+          setTimeout(()=>{
+            setLike(3)
+          },2000)
+        
+          video.liked = false;
+          if(likeCount !== 0){
+            video.likes = likeCount-1;
+          }
+          
+        }
+        setVData(videosWithLiked)
       }
-      else{
-        setLike(response);
-        setTimeout(()=>{
-          setLike(3)
-        },2000)
-      
-        video.liked = false;
-        video.likes = likeCount-1;
-      }
-    }
+     },[video_like])
+
+
 
     const handleCommentClick=(videoId)=>{
       // console.log(videoId,"----------------------------");
       setVideoid(videoId)
+      
       setOpenComment(true)
     }
+
+
+    const increaseCommentCount=()=>{
+      const video = videosWithLiked.find((item)=>item.id == videoid)
+      
+      const commentCount = video.comments; 
+      
+      video.comments = commentCount+1;
+      setVData(videosWithLiked)
+     
+    }
+  
 
   
 
@@ -171,21 +263,21 @@ const VideoPlayById = () => {
  
       <div className={classes.sub_container}>
   
-      <Navbar/>
+      {/* <Navbar/> */}
    
       <div className={classes.carousel_container}>
         <div className="swiper-container" ref={swiperRef}>
           <div className="swiper-wrapper">
             {
               !loading?
-              data?.length > 0 
+              vdata?.length > 0 
               &&(
                 <>
-              {data.map((dataItem, videoIndex) => {
+              {vdata.map((dataItem, videoIndex) => {
                 {/* console.log(videoIndex,index,"AV") */}
                 return (
                   <>
-                  <div className="swiper-slide" key={videoIndex} onClick={()=>{handleOnVideoClick(videoIndex)}} onDoubleClick={()=>{handleDoubleClick(videoIndex)}}>
+                  <div className="swiper-slide" key={videoIndex} onClick={()=>{handleOnVideoClick(videoIndex)}} onDoubleClick={()=>{handleDoubleClick(dataItem?.id)}}>
                   <Animation like={like}/>
                     <ReactPlayer
                       url={`https://dyf5pm23cs1z2.cloudfront.net/${dataItem?.videoid}/${dataItem?.videoid}.m3u8`}
@@ -272,16 +364,6 @@ const VideoPlayById = () => {
               }
               )
               }
-              {/* <div className="swiper-slide">
-                  <Skeleton
-                    sx={{
-                      bgcolor: "grey.800",
-                      width: "100%",
-                      height: "100dvh",
-                    }}
-                    variant="rectangular"
-                  />
-                </div> */}
               </>
               )
               :
@@ -294,7 +376,7 @@ const VideoPlayById = () => {
   
    
       </div>
-      <CommentSection bottom={openComment} close={()=>{setOpenComment(false)}} videoId={videoid}/>
+      <CommentSection bottom={openComment} close={()=>{setOpenComment(false)}} videoId={videoid} increaseComment={increaseCommentCount}/>
       <ShareSection bottom={share} close={()=>{setShare(false)}}  vurl={`http://localhost:5173/videoPlayById/${videoid}`} />
       </div>
     </>

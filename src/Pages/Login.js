@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import classes from './Login.module.css'
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { useNavigate } from 'react-router-dom';
@@ -13,30 +13,45 @@ import { setCookie } from '../Cookies/Cookie';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../Slices/loginSlice';
 import { loginApi } from '../Services.js/Http';
+import { useMutation } from '@apollo/client';
+import { LOGIN_USER } from '../Services.js/Mutations';
 
 
 const Login = () => {
 
   const dispatch = useDispatch();
 
+  const [login,{data,loading,error}] = useMutation(LOGIN_USER)
+
   const [number,setNumber] = useState("");
   const [password,setPassword] = useState("");
-
   // console.log(number,password,"00")
 
   const clickHandler=async(e)=>{
     e.preventDefault();
     // console.log("clicked")
-    const response = await loginApi(number,password);
-    if(response){
-      dispatch(setUser(response));
-    console.log(response,'r');
-    navigate('/')
-    }
+    // const response = await loginApi(number,password);
+    // if(response){
+    //   dispatch(setUser(response));
+    // console.log(response,'r');
+    // navigate('/')
+    // }
+
     
-    
+    login({variables:{msisdn:number,password:password}})
   }
 
+  useEffect(()=>{
+    if(!loading){
+      // console.log(data)
+      if(data){
+        dispatch(setUser(data?.login))
+        navigate('/')
+      }
+    }
+  },[loading])
+
+  
 
   const navigate = useNavigate();
   return (
@@ -57,7 +72,7 @@ const Login = () => {
 <form action="submit" style={{width:"100%"}}>
 <div className={classes.input}>
 <PhoneAndroidIcon fontSize='large' style={{color:'rgb(205 200 200 / 53%)'}}/>
-<input  type="text" placeholder="number" name="username" value={number} onChange={(e)=>{setNumber(e.target.value)}}   />
+<input  type="text" placeholder="number" name="username" value={number} onChange={(e)=>{setNumber(Number(e.target.value))}}   />
 </div>
   
   <div className={classes.input}>

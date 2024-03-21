@@ -11,10 +11,13 @@ import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import LikedSkeleton from '../Components/LikedSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from "../Cookies/Cookie";
+import { useQuery } from '@apollo/client';
+import { GET_LIKED_VIDEOS } from '../Services.js/Queries';
 
 
 const Liked = () => {
 
+  const token = getCookie()?JSON.parse(getCookie()).token:"";
 
     const playerRef = useRef(null);
 
@@ -24,21 +27,36 @@ const Liked = () => {
     const [arr,setArr] = useState([]);
     const [videoIndex, setVideoIndex] = useState(null);
     const [mute,setMute] = useState(false);
-    const [loading,setLoading] = useState(true);
+    // const [loading,setLoading] = useState(true);
 
-    const msisdn = JSON.parse(getCookie()).msisdn;
+    const msisdn = getCookie()?JSON.parse(getCookie()).msisdn:"";
+
+    const {data,loading,error} = useQuery(GET_LIKED_VIDEOS,{
+      variables:{
+        msisdn:Number(msisdn)
+      },
+      context:{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    })
    
 
     useEffect(()=>{
-        const fetchData = async()=>{
-            const data = await LikedVideoApi(msisdn);
+        // const fetchData = async()=>{
+            // const data = await LikedVideoApi(msisdn);
             // console.log("--",data);
-            setArr(data);
-            setLoading(false);
-        }
-        fetchData()
+            if(data){
+              setArr(data.userLikedVideos.result);
+              // console.log(data)
+            }
+            
+            // setLoading(false);
+        // }
+        // fetchData()
         
-    },[])
+    },[data])
 
     const handleOnVideoClick=(idx)=>{
         setVideoIndex(idx);

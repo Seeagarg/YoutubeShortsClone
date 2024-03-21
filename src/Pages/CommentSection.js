@@ -16,13 +16,33 @@ import SendIcon from '@mui/icons-material/Send';
 import axios from "axios";
 import { addComment, getComments } from "../Services.js/Http";
 import { getCookie } from "../Cookies/Cookie";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_VIDEO_COMMENT } from "../Services.js/Queries";
+import { POST_COMMENT } from "../Services.js/Mutations";
 
 
 export default function CommentSection({bottom,close,videoId,increaseComment}) {
     // console.log(bottom)
 
+    const token = getCookie()?
+ JSON.parse(getCookie()).token:"";
+
     const [comment,setComment] = useState("")
     const [arr,setArr] = useState([]);
+    const [postComment,{data:comment_data,loading:comment_post_loading,error:comment_post_error}] = useMutation(POST_COMMENT)
+
+    const {data,loading,error,refetch} = useQuery(GET_VIDEO_COMMENT,{
+      variables:{
+        videoId:Number(videoId),
+
+      },
+        context:{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+      
+    })
 
     const msisdn = getCookie()?
     JSON.parse(getCookie()).msisdn:"";;
@@ -36,25 +56,40 @@ export default function CommentSection({bottom,close,videoId,increaseComment}) {
   
   const sendComment=async()=>{
     try{
-      const response = await addComment(videoId,msisdn,comment)
-      // console.log(response,"r");
       increaseComment();
+      postComment({
+        variables:{
+          videoId:videoId,
+          msisdn:msisdn,
+          comment:comment
+        },
+        context:{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+      })
+      // console.log(response,"r");
+      
+      refetch()
       // console.log(videoId,comment,msisdn,"Added Comment")
     }
     catch(err){
-      // console.log("err",err);
+      console.log("err",err);
     }
     setComment("");
-    getCommentsFromBackend();
+    refetch()
+    // getCommentsFromBackend();
   }
   const getCommentsFromBackend=async()=>{
     if(bottom){
-    const response= await getComments(videoId);
-    setArr(response);
+    // const response= await getComments(videoId);
+    // setArr(response);
     }
     
     // console.log(response,"comment response");
   }
+  console.log(data)
 
   useEffect(()=>{
     const handleKeyPress=(event)=>{
@@ -74,9 +109,11 @@ export default function CommentSection({bottom,close,videoId,increaseComment}) {
   },[])
 
   useEffect(()=>{
-    getCommentsFromBackend();
-    
-  },[videoId])
+    // getCommentsFromBackend();
+    if(data){
+      setArr(data.getVideoComments.result)
+    }
+  },[data])
 
 
   const list = (anchor) => (
@@ -98,7 +135,10 @@ export default function CommentSection({bottom,close,videoId,increaseComment}) {
               <div style={{backgroundColor:"white",borderRadius:"50%",height:"25px",width:"25px"}}>
               <img src="https://www.freeiconspng.com/thumbs/profile-icon-png/profile-icon-9.png" alt="" style={{height:"25px",width:"25px",alignItems:"center"}} />
               </div>
-              <ListItemText primary={item?.comment}  style={{paddingLeft:"10px"}} />
+              <div style={{display:"flex",flexDirection:"column",alignItems:"self-start"}}>
+              <p style={{fontSize:"10px",textAlign:"left",paddingLeft:"10px",margin:"0px"}} >{item?.msisdn}</p>
+              <ListItemText primary={item?.comment}  style={{paddingLeft:"10px",margin:"0px"}} />
+              </div>
             </ListItemButton>
           </ListItem>
         ))

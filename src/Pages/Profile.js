@@ -15,7 +15,6 @@ import { removeUser } from '../Slices/loginSlice';
 // import LogoutIcon from '@mui/icons-material/Logout';
 
 const Profile = () => {
-
   
 const dispatch = useDispatch();
   const msisdn = getCookie()?

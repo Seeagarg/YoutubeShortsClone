@@ -6,6 +6,27 @@
   align-items: center;
   scrollbar-width: 2px !important;
   scrollbar-color: #ef3f49 !important;
+ 
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #ef3f49; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #ef3f49; 
 }
 
 html{
